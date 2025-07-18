@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { getUserFromToken } from '../utils/jwtUtils';
+import './UpdateProfile.css';
 
 export default function UpdateProfile() {
   const [form, setForm] = useState({ username: '', phone: '', email: '', password: '' });
@@ -38,15 +39,15 @@ export default function UpdateProfile() {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Update Profile</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="update-profile-container">
+      <h2 className="update-profile-title">Update Profile</h2>
+      <form onSubmit={handleSubmit} className="update-profile-form">
         <input
           type="text"
           placeholder="Username"
           value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded"
+          className="form-input"
           required
         />
         <input
@@ -54,7 +55,7 @@ export default function UpdateProfile() {
           placeholder="Phone"
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded"
+          className="form-input"
           required
         />
         <input
@@ -62,7 +63,7 @@ export default function UpdateProfile() {
           placeholder="Email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded"
+          className="form-input"
           required
         />
         <input
@@ -70,12 +71,12 @@ export default function UpdateProfile() {
           placeholder="New Password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded"
+          className="form-input"
           required
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="form-button"
         >
           Update
         </button>

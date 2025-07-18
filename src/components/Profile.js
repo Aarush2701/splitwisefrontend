@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { getUserFromToken } from '../utils/jwtUtils';
+import './Profile.css';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -21,18 +22,18 @@ export default function Profile() {
         setUser(res.data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setError('Failed to fetch user data');
         setLoading(false);
       });
   }, [userData?.id]);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (error) return <p className="error-text">{error}</p>;
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">User Profile</h2>
+    <div className="profile-container">
+      <h2 className="profile-title">User Profile</h2>
       <p><strong>Username:</strong> {user.username}</p>
       <p><strong>Email:</strong> {user.email}</p>
       <p><strong>Phone:</strong> {user.phone}</p>
