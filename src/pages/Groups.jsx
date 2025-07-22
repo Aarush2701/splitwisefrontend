@@ -74,11 +74,18 @@ export default function Groups() {
     setSelectedGroup(res.data);
   } catch (err) {
     console.error("Failed to remove user:", err);
-    alert("Failed to remove user. They might have unsettled balances.");
+    if (
+      err.response &&
+      err.response.data &&
+      typeof err.response.data === 'string' &&
+      err.response.data.toLowerCase().includes("unsettled")
+    ) {
+      alert("Cannot remove user: They have unsettled balances in the group.");
+    } else {
+      alert("Failed to remove user from the group.");
+    }
   }
 };
-
-
 
   return (
   <div className="p-4">
@@ -146,7 +153,7 @@ export default function Groups() {
         <p><strong>Name:</strong> {selectedGroup.groupname}</p>
         <p><strong>Members:</strong></p>
         <ul className="list-disc list-inside mb-3">
-  {selectedGroup.members?.map(member => (
+        {selectedGroup.members?.map(member => (
     <li key={member.userId} className="flex justify-between items-center">
       <span>{member.username} (ID: {member.userId})</span>
       <button
