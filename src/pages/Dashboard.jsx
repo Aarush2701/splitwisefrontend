@@ -5,6 +5,7 @@ import Profile from '../components/Profile';
 import UpdateProfile from '../components/UpdateProfile';
 import { getUserFromToken } from '../utils/jwtUtils';
 import './dashboard.css';
+import Groups from './Groups';
 
 export default function Dashboard() {
   const [groups, setGroups] = useState([]);
@@ -37,7 +38,7 @@ export default function Dashboard() {
    const renderContent = () => {
     switch (activeSection) {
       case 'groups':
-        return <div>Your Groups Section</div>;
+        return <Groups />;
       case 'expense':
         return <div>Your Expenses Section</div>;
       case 'balance':
@@ -73,8 +74,6 @@ export default function Dashboard() {
         Logout
       </button>
     </div>
-
-    {/* Main Content */}
     <div className="main-content">
       <div className="section-buttons">
         {['groups', 'expense', 'balance', 'settlement'].map((section) => (
