@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Profile from '../components/Profile';
 import UpdateProfile from '../components/UpdateProfile';
 import { getUserFromToken } from '../utils/jwtUtils';
-import './dashboard.css';
+// import './dashboard.css';
 import Groups from './Groups';
 
 export default function Dashboard() {
@@ -34,38 +34,37 @@ export default function Dashboard() {
   }, []);
 
   const [activeSection, setActiveSection] = useState('groups');
-
-   const renderContent = () => {
+  const renderContent = () => {
     switch (activeSection) {
       case 'groups':
         return <Groups />;
-      case 'expense':
-        return <div>Your Expenses Section</div>;
-      case 'balance':
-        return <div>Your Balance Section</div>;
-      case 'settlement':
-        return <div>Your Settlement Section</div>;
       case 'profile':
-        return <Profile />;
+       return <Profile onBack={() => setActiveSection('groups')} />;
       case 'update':
-        return <UpdateProfile />;
+        return <UpdateProfile onBack={() => setActiveSection('groups')} />;
       default:
         return null;
     }
   };
-
-   return (
-  <div className="dashboard-container">
-    <div className="sidebar">
-      <h2 className="sidebar-title">Dashboard</h2>
-      <button className="sidebar-button" onClick={() => setActiveSection('profile')}>
+return (
+  <div className="min-h-screen flex">
+    {/* Left Sidebar */}
+    <div className="w-64 bg-gray-800 text-white p-6 flex flex-col gap-6">
+      <h2 className="text-2xl font-bold">Dashboard</h2>
+      <button
+        className="text-left w-full bg-transparent border-none p-2 rounded-md hover:bg-gray-700"
+        onClick={() => setActiveSection('profile')}
+      >
         Profile
       </button>
-      <button className="sidebar-button" onClick={() => setActiveSection('update')}>
+      <button
+        className="text-left w-full bg-transparent border-none p-2 rounded-md hover:bg-gray-700"
+        onClick={() => setActiveSection('update')}
+      >
         Update Details
       </button>
       <button
-        className="logout-button"
+        className="text-left w-full bg-red-500 border-none p-2 rounded-md hover:bg-red-600"
         onClick={() => {
           localStorage.removeItem('token');
           window.location.href = '/login';
@@ -74,22 +73,14 @@ export default function Dashboard() {
         Logout
       </button>
     </div>
-    <div className="main-content">
-      <div className="section-buttons">
-        {['groups', 'expense', 'balance', 'settlement'].map((section) => (
-          <button
-            key={section}
-            className={`section-button ${activeSection === section ? 'active' : ''}`}
-            onClick={() => setActiveSection(section)}
-          >
-            {section.charAt(0).toUpperCase() + section.slice(1)}
-          </button>
-        ))}
-      </div>
-      <div className="content-box">
+
+    {/* Main Section */}
+    <div className="flex-1 p-8">
+      <div className="bg-white p-6 rounded-lg shadow-md">
         {renderContent()}
       </div>
     </div>
   </div>
 );
+
 }
