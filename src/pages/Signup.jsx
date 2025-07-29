@@ -18,8 +18,11 @@ export default function Signup() {
       alert('User created. Now login.');
       navigate("/login");
     } catch (err) {
-      console.error('Signup failed:', err);
-      alert('Signup failed. Please try again.');
+       const message =
+      err?.response?.data?.message ||     // Common Spring Boot error field
+      err?.response?.data?.error ||       // Sometimes it's under 'error'
+      err?.response?.data ||  'Signup failed. Please try again.'; 
+      alert(message);
     }
   };
 

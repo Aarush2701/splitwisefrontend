@@ -12,6 +12,7 @@ import UpdateProfile from './components/UpdateProfile';
 import GroupDetails from './pages/GroupDetails';
 import AddExpense from './pages/Group/AddExpense';
 import SettleForm from './components/group/SettleForm';
+import EditExpense from './pages/Group/EditExpense';
 
 
 
@@ -33,6 +34,8 @@ function App() {
           <Route path="/group/:groupid" element={<ProtectedRoute><GroupDetails /></ProtectedRoute>} />
           <Route path="/group/:groupid/add-expense" element={<ProtectedRoute><AddExpense /></ProtectedRoute>} />
           <Route path="/settle" element={<ProtectedRoute><SettleForm /></ProtectedRoute>} />
+          <Route path="/group/:groupid/expenses/:expenseid/edit" element={<EditExpense />} />
+
 
         </Routes>
       </AuthProvider>

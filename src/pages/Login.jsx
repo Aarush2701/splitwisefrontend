@@ -21,10 +21,16 @@ export default function Login() {
         alert('Token not received');
       }
     } catch (err) {
-      console.error('Login failed:', err);
-      alert('Login failed. Please try again.');
-    }
+    const message =
+      err?.response?.data?.message ||     // Common Spring Boot error field
+      err?.response?.data?.error ||       // Sometimes it's under 'error'
+      err?.response?.data ||              // Fallback to whole response data
+      'Login failed. Please try again.';  // Final fallback message
+    alert(message);
   };
+  }
+
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
