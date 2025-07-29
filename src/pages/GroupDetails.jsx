@@ -38,8 +38,11 @@ const handleDeleteGroup = async () => {
     alert('Group deleted successfully.');
     navigate('/dashboard');
   } catch (err) {
-    console.error('Error deleting group:', err);
-    alert('Failed to delete group.');
+   const message =
+      err?.response?.data?.message ||     // Common Spring Boot error field
+      err?.response?.data?.error ||       // Sometimes it's under 'error'
+      err?.response?.data ||  "Failed to Delete Group ";
+      alert(message);
   }
 };
 
