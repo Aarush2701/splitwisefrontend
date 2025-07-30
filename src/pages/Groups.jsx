@@ -1,3 +1,4 @@
+
 // import React, { useEffect, useState } from 'react';
 // import api from '../api/axios';
 // import { getUserFromToken } from '../utils/jwtUtils';
@@ -24,7 +25,16 @@
 
 //   return (
 //     <div className="p-4">
-//       <h2 className="text-xl font-semibold mb-4">Your Groups</h2>
+//       <div className="flex justify-between items-center mb-4">
+//         <h2 className="text-xl font-semibold">Your Groups</h2>
+//         <button
+//           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+//           onClick={() => navigate('/create-group')}
+//         >
+//           Create Group
+//         </button>
+//       </div>
+
 //       <ul className="space-y-2">
 //         {groups.map(group => (
 //           <li key={group.groupid} className="flex justify-between items-center border p-2 rounded">
@@ -42,26 +52,44 @@
 //   );
 // }
 
-
-// src/pages/Groups.jsx
 import React, { useEffect, useState } from 'react';
-import api from '../api/axios';
+import {
+  Box, Typography, Grid, Card, Button, Avatar,
+  Toolbar, Paper
+} from '@mui/material';
+import {
+  AddCircleOutline as AddCircleOutlineIcon,
+  Visibility as VisibilityIcon,
+  Groups as GroupsIcon
+} from '@mui/icons-material';
 import { getUserFromToken } from '../utils/jwtUtils';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 export default function Groups() {
   const user = getUserFromToken();
   const [groups, setGroups] = useState([]);
+  const [userDetails, setUserDetails] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user?.id) return;
-    fetchUserGroups();
+    fetchUserDetails(user.id);
+    fetchUserGroups(user.id);
   }, [user?.id]);
 
-  const fetchUserGroups = async () => {
+  const fetchUserDetails = async (id) => {
     try {
-      const res = await api.get(`/group/users/${user.id}`);
+      const res = await api.get(`/users/${id}`);
+      setUserDetails(res.data);
+    } catch (err) {
+      console.error('Failed to fetch user details:', err);
+    }
+  };
+
+  const fetchUserGroups = async (id) => {
+    try {
+      const res = await api.get(`/group/users/${id}`);
       setGroups(res.data || []);
     } catch (err) {
       console.error('Failed to fetch groups:', err);
@@ -69,30 +97,60 @@ export default function Groups() {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Your Groups</h2>
-        <button
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          onClick={() => navigate('/create-group')}
-        >
-          Create Group
-        </button>
-      </div>
+    <Box sx={{ backgroundColor: '#f2f6fb', minHeight: '100vh', py: 4 }}>
+       <Paper elevation={3} sx={{ mx: 3, mb: 4 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', px: 3 }}>
+          <Typography variant="h6" color="primary">
+            Welcome: <b>{userDetails?.username || 'Loading...'}</b>
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddCircleOutlineIcon />}
+            sx={{
+              background: 'linear-gradient(135deg, #6EE7B7 0%, #3B82F6 100%)',
+              color: 'white',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #3B82F6 0%, #6EE7B7 100%)'
+              }
+            }}
+            onClick={() => navigate('/create-group')}
+          >
+            Create Group
+          </Button>
+        </Toolbar>
+      </Paper>
 
-      <ul className="space-y-2">
-        {groups.map(group => (
-          <li key={group.groupid} className="flex justify-between items-center border p-2 rounded">
-            <span>{group.groupname}</span>
-            <button
-              className="bg-blue-500 text-white px-3 py-1 rounded"
-              onClick={() => navigate(`/group/${group.groupid}`)}
-            >
-              View
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+      <Box px={4}>
+        <Typography variant="h5" gutterBottom color="text.primary">
+          <GroupsIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+          Your Groups
+        </Typography>
+
+        <Grid columns={12} sx={{ mt: 2 }}>
+  {groups.map(group => (
+    <Grid span={12} sm={6} md={4} key={group.groupid} sx={{ mb: 2 }}>
+
+              <Card sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1, boxShadow: 2 }}>
+                <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
+                  {group.groupname[0].toUpperCase()}
+                </Avatar>
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="subtitle1">{group.groupname}</Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  startIcon={<VisibilityIcon />}
+                  onClick={() => navigate(`/group/${group.groupid}`)}
+                >
+                  View
+                </Button>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Box>
   );
 }
