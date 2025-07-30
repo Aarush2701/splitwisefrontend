@@ -98,6 +98,7 @@ import SettlementsTab from '../components/group/SettlementsTab';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useLocation } from 'react-router-dom';
 
 import {
   AppBar,
@@ -121,7 +122,7 @@ import {
 export default function GroupDetails() {
   const { groupid } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('expenses');
   const [group, setGroup] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -140,9 +141,14 @@ export default function GroupDetails() {
         });
       }
     };
-
     fetchGroupDetails();
   }, [groupid]);
+
+  useEffect(() => {
+  if (location.state?.tab) {
+    setActiveTab(location.state.tab);
+  }
+}, [location.state?.tab]);
 
   const handleTabChange = (event, newValue) => setActiveTab(newValue);
   const handleDeleteConfirm = () => setOpenDialog(true);
