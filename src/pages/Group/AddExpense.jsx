@@ -402,7 +402,7 @@ export default function AddExpense() {
   <Button
     type="submit"
     variant="contained"
-    color="success"
+    color="primary"
     endIcon={<i className="fas fa-plus-circle" />}
     sx={{
       borderRadius: '20px',

@@ -210,7 +210,7 @@ export default function SettleForm() {
       <Box display="flex" justifyContent="space-between">
         <Button
           variant="contained"
-          color="success"
+          color="primary"
           onClick={() => setConfirmDialogOpen(true)}
           disabled={!amount || parseFloat(amount) <= 0}
         >

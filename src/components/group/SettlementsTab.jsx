@@ -82,7 +82,6 @@
 //   );
 // }
 
-
 import React, { useEffect, useState } from 'react';
 import {
   Tabs,
@@ -93,16 +92,29 @@ import {
   Card,
   CardContent,
   Stack,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  IconButton,
 } from '@mui/material';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import api from '../../api/axios';
 import { getUserFromToken } from '../../utils/jwtUtils';
 
 export default function SettlementTab({ groupid }) {
   const [settlements, setSettlements] = useState([]);
   const [activeTab, setActiveTab] = useState('ALL');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedSettlement, setSelectedSettlement] = useState(null);
+  const [editedAmount, setEditedAmount] = useState('');
   const user = getUserFromToken();
 
   const tabOptions = [
@@ -111,7 +123,7 @@ export default function SettlementTab({ groupid }) {
     { label: 'Paid to Me', value: 'PAID_TO_ME', icon: <ArrowCircleDownIcon /> },
   ];
 
-  useEffect(() => {
+  const fetchSettlements = () => {
     if (!user?.id) return;
 
     let endpoint = `/group/${groupid}/settlements`;
@@ -130,6 +142,10 @@ export default function SettlementTab({ groupid }) {
         setSettlements(sorted);
       })
       .catch((err) => console.error('Error fetching settlements:', err));
+  };
+
+  useEffect(() => {
+    fetchSettlements();
   }, [groupid, activeTab, user?.id]);
 
   const formatDate = (dateString) => {
@@ -138,6 +154,45 @@ export default function SettlementTab({ groupid }) {
     } catch (e) {
       return '';
     }
+  };
+
+  const handleDelete = (settlement) => {
+    setSelectedSettlement(settlement);
+    setOpenDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    const { id } = selectedSettlement;
+    api
+      .delete(`/group/${groupid}/settlements/${id}`)
+      .then(() => {
+        setOpenDeleteDialog(false);
+        fetchSettlements();
+      })
+      .catch((err) => console.error('Error deleting settlement:', err));
+  };
+
+  const handleEdit = (settlement) => {
+    setSelectedSettlement(settlement);
+    setEditedAmount(settlement.amount);
+    setOpenEditDialog(true);
+  };
+
+  const submitEdit = () => {
+    const { id, paidby, paidto } = selectedSettlement;
+    const payload = {
+      paidby: paidby.userid || paidby.id,
+      paidto: paidto.userid || paidto.id,
+      amount: parseFloat(editedAmount),
+    };
+
+    api
+      .put(`/group/${groupid}/settlements/${id}`, payload)
+      .then(() => {
+        setOpenEditDialog(false);
+        fetchSettlements();
+      })
+      .catch((err) => console.error('Error updating settlement:', err));
   };
 
   return (
@@ -182,27 +237,96 @@ export default function SettlementTab({ groupid }) {
                   alignItems: 'center',
                 }}
               >
-                <Typography>
-                  <strong style={{ color: '#1976d2' }}>
-                    {settle.paidby?.username || `User#${settle.paidby?.userid}`}
-                  </strong>{' '}
-                  paid{' '}
-                  <strong style={{ color: '#2e7d32' }}>
-                    ₹{settle.amount.toLocaleString()}
-                  </strong>{' '}
-                  to{' '}
-                  <strong style={{ color: '#f9a825' }}>
-                    {settle.paidto?.username || `User#${settle.paidto?.userid}`}
-                  </strong>
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {formatDate(settle.date)}
-                </Typography>
+                <Box>
+                  <Typography>
+                    <strong style={{ color: '#1976d2' }}>
+                      {settle.paidby?.username ||
+                        `User#${settle.paidby?.userid}`}
+                    </strong>{' '}
+                    paid{' '}
+                    <strong style={{ color: '#2e7d32' }}>
+                      ₹{settle.amount.toLocaleString()}
+                    </strong>{' '}
+                    to{' '}
+                    <strong style={{ color: '#f9a825' }}>
+                      {settle.paidto?.username ||
+                        `User#${settle.paidto?.userid}`}
+                    </strong>
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {formatDate(settle.date)}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <IconButton
+                    onClick={() => handleEdit(settle)}
+                    color="primary"
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => handleDelete(settle)}
+                    color="error"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
               </CardContent>
             </Card>
           ))}
         </Stack>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this settlement?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+          <Button color="error" onClick={confirmDelete}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+        <DialogTitle>Edit Settlement</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+          <TextField
+            label="Paid By"
+            value={
+              selectedSettlement?.paidby?.username ||
+              `User#${selectedSettlement?.paidby?.userid}`
+            }
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            label="Paid To"
+            value={
+              selectedSettlement?.paidto?.username ||
+              `User#${selectedSettlement?.paidto?.userid}`
+            }
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            label="Amount"
+            type="number"
+            value={editedAmount}
+            onChange={(e) => setEditedAmount(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+          <Button onClick={submitEdit} variant="contained">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
+

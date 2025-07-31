@@ -168,7 +168,9 @@ export default function GroupMembersTab({ groupid }) {
       setNewUserEmail('');
       loadMembers();
     } catch (err) {
-      const message = err?.response?.data?.message || 'Failed to add user';
+      const message = err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.response?.data || 'Failed to add user';
       setSnackbar({ open: true, message, severity: 'error' });
     }
   };

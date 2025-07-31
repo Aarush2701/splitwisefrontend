@@ -84,6 +84,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import PersonIcon from '@mui/icons-material/Person';
@@ -99,24 +100,34 @@ export default function Signup() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [shake, setShake] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSignup = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post('/auth/signup', form);
-      setSnackbar({ open: true, message: 'User created. Now login.', severity: 'success' });
-      setTimeout(() => navigate('/login'), 1500);
-    } catch (err) {
-      const message =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.response?.data ||
-        'Signup failed. Please try again.';
-      setSnackbar({ open: true, message, severity: 'error' });
-      setShake(true);
-      setTimeout(() => setShake(false), 500); // remove shake class after animation
-    }
-  };
+  e.preventDefault();
+  try {
+    const res = await api.post('/auth/signup', form);
+
+    const token = res.data.token; // make sure your backend returns this
+    localStorage.setItem('token', token); // or call your AuthContext's login method
+
+    setSnackbar({ open: true, message: 'User created successfully.', severity: 'success' });
+    login(token);
+
+    setTimeout(() => {
+      navigate('/dashboard'); // Redirect to dashboard
+    }, 1000);
+  } catch (err) {
+    const message =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.response?.data ||
+      'Signup failed. Please try again.';
+    setSnackbar({ open: true, message, severity: 'error' });
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  }
+};
+
 
   useEffect(() => {
     localStorage.removeItem('token');
@@ -220,7 +231,7 @@ export default function Signup() {
           {/* Register Button */}
           <button
             type="submit"
-            className="w-full bg-green-500 text-white py-2 rounded-lg font-semibold shadow-lg hover:bg-green-600 hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+            className="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold shadow-lg hover:bg-blue-600 hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
           >
             <span className="tracking-wider">Register</span>
           </button>

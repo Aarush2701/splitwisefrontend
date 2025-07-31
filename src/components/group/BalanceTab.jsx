@@ -243,7 +243,7 @@ export default function BalanceTab({ groupid }) {
         <Button
           variant="contained"
           size="small"
-          color="success"
+          color="primary"
           disabled={!isUserInvolved}
           onClick={() => isUserInvolved && handleSettleClick(bal)}
           startIcon={<MonetizationOnIcon />}
