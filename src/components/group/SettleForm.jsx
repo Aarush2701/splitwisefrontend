@@ -246,7 +246,7 @@ export default function SettleForm() {
           <Button onClick={() => setConfirmDialogOpen(false)} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleCreateSettlement} color="success" variant="contained">
+          <Button onClick={handleCreateSettlement} color="primary" variant="contained">
             Confirm
           </Button>
         </DialogActions>

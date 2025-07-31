@@ -99,6 +99,8 @@ import {
   DialogActions,
   TextField,
   IconButton,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
@@ -115,6 +117,9 @@ export default function SettlementTab({ groupid }) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedSettlement, setSelectedSettlement] = useState(null);
   const [editedAmount, setEditedAmount] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [openSaveConfirmDialog, setOpenSaveConfirmDialog] = useState(false);
+
   const user = getUserFromToken();
 
   const tabOptions = [
@@ -168,8 +173,13 @@ export default function SettlementTab({ groupid }) {
       .then(() => {
         setOpenDeleteDialog(false);
         fetchSettlements();
+        setSnackbar({ open: true, message: 'Settlement deleted successfully!', severity: 'success' });
       })
-      .catch((err) => console.error('Error deleting settlement:', err));
+      .catch((err) => {
+        console.error('Error deleting settlement:', err);
+        setOpenDeleteDialog(false);
+        setSnackbar({ open: true, message: 'Failed to delete settlement.', severity: 'error' });
+      });
   };
 
   const handleEdit = (settlement) => {
@@ -178,7 +188,13 @@ export default function SettlementTab({ groupid }) {
     setOpenEditDialog(true);
   };
 
+  // When user clicks Save in the edit dialog, open confirmation dialog
   const submitEdit = () => {
+    setOpenSaveConfirmDialog(true);
+  };
+
+  // Actual API call to save after confirmation
+  const confirmEditSave = () => {
     const { id, paidby, paidto } = selectedSettlement;
     const payload = {
       paidby: paidby.userid || paidby.id,
@@ -190,13 +206,24 @@ export default function SettlementTab({ groupid }) {
       .put(`/group/${groupid}/settlements/${id}`, payload)
       .then(() => {
         setOpenEditDialog(false);
+        setOpenSaveConfirmDialog(false);
         fetchSettlements();
+        setSnackbar({ open: true, message: 'Settlement updated successfully!', severity: 'success' });
       })
-      .catch((err) => console.error('Error updating settlement:', err));
+      .catch((err) => {
+  const message =
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    (typeof err?.response?.data === 'string' ? err.response.data : null) ||
+    'Failed to update settlement.';
+  console.error(message);
+  setOpenSaveConfirmDialog(false);
+  setSnackbar({ open: true, message, severity: 'error' });
+});
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3  }}>
       <Typography variant="h5" fontWeight="bold" mb={3}>
         Settlement History
       </Typography>
@@ -240,8 +267,7 @@ export default function SettlementTab({ groupid }) {
                 <Box>
                   <Typography>
                     <strong style={{ color: '#1976d2' }}>
-                      {settle.paidby?.username ||
-                        `User#${settle.paidby?.userid}`}
+                      {settle.paidby?.username || `User#${settle.paidby?.userid}`}
                     </strong>{' '}
                     paid{' '}
                     <strong style={{ color: '#2e7d32' }}>
@@ -249,8 +275,7 @@ export default function SettlementTab({ groupid }) {
                     </strong>{' '}
                     to{' '}
                     <strong style={{ color: '#f9a825' }}>
-                      {settle.paidto?.username ||
-                        `User#${settle.paidto?.userid}`}
+                      {settle.paidto?.username || `User#${settle.paidto?.userid}`}
                     </strong>
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -259,16 +284,10 @@ export default function SettlementTab({ groupid }) {
                 </Box>
 
                 <Box>
-                  <IconButton
-                    onClick={() => handleEdit(settle)}
-                    color="primary"
-                  >
+                  <IconButton onClick={() => handleEdit(settle)} color="primary">
                     <EditIcon />
                   </IconButton>
-                  <IconButton
-                    onClick={() => handleDelete(settle)}
-                    color="error"
-                  >
+                  <IconButton onClick={() => handleDelete(settle)} color="error">
                     <DeleteIcon />
                   </IconButton>
                 </Box>
@@ -281,9 +300,7 @@ export default function SettlementTab({ groupid }) {
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this settlement?
-        </DialogContent>
+        <DialogContent>Are you sure you want to delete this settlement?</DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
           <Button color="error" onClick={confirmDelete}>
@@ -295,20 +312,19 @@ export default function SettlementTab({ groupid }) {
       {/* Edit Dialog */}
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Edit Settlement</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2, pt: 5,  }}>
+         <Box sx={{ pt: 1 }}>
           <TextField
             label="Paid By"
             value={
-              selectedSettlement?.paidby?.username ||
-              `User#${selectedSettlement?.paidby?.userid}`
+              selectedSettlement?.paidby?.username || `User#${selectedSettlement?.paidby?.userid}`
             }
             InputProps={{ readOnly: true }}
-          />
+          /></Box>
           <TextField
             label="Paid To"
             value={
-              selectedSettlement?.paidto?.username ||
-              `User#${selectedSettlement?.paidto?.userid}`
+              selectedSettlement?.paidto?.username || `User#${selectedSettlement?.paidto?.userid}`
             }
             InputProps={{ readOnly: true }}
           />
@@ -326,7 +342,36 @@ export default function SettlementTab({ groupid }) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Save Confirmation Dialog */}
+      <Dialog open={openSaveConfirmDialog} onClose={() => setOpenSaveConfirmDialog(false)}>
+        <DialogTitle>Confirm Save</DialogTitle>
+        <DialogContent>Are you sure you want to save changes to this settlement?</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenSaveConfirmDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={confirmEditSave}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for success/failure messages */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+           variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
+
 
