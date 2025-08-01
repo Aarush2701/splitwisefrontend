@@ -13,7 +13,7 @@ import GroupDetails from './pages/GroupDetails';
 import AddExpense from './pages/Group/AddExpense';
 import SettleForm from './components/group/SettleForm';
 import EditExpense from './pages/Group/EditExpense';
-
+import OAuth2RedirectHandler from './utils/OAuth2RedirectHandler';
 
 
 function App() {
@@ -26,6 +26,7 @@ function App() {
           
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
            <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
            <Route path="update" element={<ProtectedRoute><UpdateProfile /></ProtectedRoute>} />
