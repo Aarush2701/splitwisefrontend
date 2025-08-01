@@ -255,7 +255,9 @@ export default function AddExpense() {
         navigate(`/group/${groupid}`);
       }, 1500);
     } catch (err) {
-      const backendMessage = err.response?.data || 'Failed to add expense';
+      const backendMessage = err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.response?.data  || 'Failed to add expense';
       setSnackbar({ open: true, message: backendMessage, severity: 'error' });
     }
   };

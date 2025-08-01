@@ -62,6 +62,8 @@ import {
   Visibility as VisibilityIcon,
   Groups as GroupsIcon
 } from '@mui/icons-material';
+import { useMediaQuery } from '@mui/material';
+
 import { getUserFromToken } from '../utils/jwtUtils';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
@@ -71,6 +73,8 @@ export default function Groups() {
   const [groups, setGroups] = useState([]);
   const [userDetails, setUserDetails] = useState(null);
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width:768px)');
+
 
   useEffect(() => {
     if (!user?.id) return;
@@ -98,26 +102,35 @@ export default function Groups() {
 
   return (
     <Box sx={{ backgroundColor: '#f2f6fb', minHeight: '100vh', py: 4 }}>
-       <Paper elevation={3} sx={{ mx: 3, mb: 4 }}>
-        <Toolbar sx={{ justifyContent: 'space-between', px: 3 }}>
-          <Typography variant="h6" color="primary">
-            Welcome: <b>{userDetails?.username || 'Loading...'}</b>
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddCircleOutlineIcon />}
-            sx={{
-              background: 'linear-gradient(135deg, #6EE7B7 0%, #3B82F6 100%)',
-              color: 'white',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #3B82F6 0%, #6EE7B7 100%)'
-              }
-            }}
-            onClick={() => navigate('/create-group')}
-          >
-            Create Group
-          </Button>
-        </Toolbar>
+       <Paper elevation={3} sx={{ mx: 3, mb: 4, pb: isMobile ? 2 : 0 }}>
+        <Toolbar
+  sx={{
+    px: 3,
+    flexDirection: isMobile ? 'column' : 'row',
+    alignItems: isMobile ? 'flex-start' : 'center',
+    justifyContent: 'space-between',
+    gap: isMobile ? 1.5 : 0,
+  }}
+>
+  <Typography variant="h6" color="primary">
+    Welcome: <b>{userDetails?.username || 'Loading...'}</b>
+  </Typography>
+  <Button
+    variant="contained"
+    startIcon={<AddCircleOutlineIcon />}
+    sx={{
+      background: 'linear-gradient(135deg, #6EE7B7 0%, #3B82F6 100%)',
+      color: 'white',
+      '&:hover': {
+        background: 'linear-gradient(135deg, #3B82F6 0%, #6EE7B7 100%)'
+      }
+    }}
+    onClick={() => navigate('/create-group')}
+  >
+    Create Group
+  </Button>
+</Toolbar>
+
       </Paper>
 
       <Box px={4}>

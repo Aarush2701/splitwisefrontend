@@ -263,7 +263,7 @@ export default function Dashboard() {
               minHeight: '100%',
               borderRadius: 2,
             }}
-          >
+          > 
             {renderContent()}
           </Paper>
         </Box>

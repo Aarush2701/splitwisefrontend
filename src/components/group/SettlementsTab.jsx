@@ -216,7 +216,6 @@ export default function SettlementTab({ groupid }) {
     err?.response?.data?.error ||
     (typeof err?.response?.data === 'string' ? err.response.data : null) ||
     'Failed to update settlement.';
-  console.error(message);
   setOpenSaveConfirmDialog(false);
   setSnackbar({ open: true, message, severity: 'error' });
 });

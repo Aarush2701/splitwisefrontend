@@ -301,7 +301,13 @@ export default function ExpensesTab({ groupid }) {
       </Typography>
 
       {/* Action Buttons */}
-      <Stack direction="row" spacing={2} mb={3} flexWrap="wrap">
+      <Stack
+  direction={{ xs: 'column', sm: 'row' }}
+  spacing={1.5}
+  mb={3}
+  alignItems="flex-start"
+>
+
         <Button
           variant="contained"
           startIcon={<AddCircleOutlineIcon />}
@@ -331,13 +337,16 @@ export default function ExpensesTab({ groupid }) {
 
         {showingMyExpenses && (
           <Button
-            variant="outlined"
-            startIcon={<RestoreIcon />}
-            onClick={fetchAllExpenses}
-            sx={{ textTransform: 'none' }}
-          >
-            Show All Expenses
-          </Button>
+  variant="outlined"
+  startIcon={<RestoreIcon />}
+  onClick={fetchAllExpenses}
+  sx={{
+    textTransform: 'none',
+    mt: { xs: 2.5, sm: 0 },  // Adds vertical margin on mobile only
+  }}
+>
+  Show All Expenses
+</Button>
         )}
       </Stack>
 
@@ -422,8 +431,8 @@ export default function ExpensesTab({ groupid }) {
       {splits.map((s, idx) => (
         <Fade in={true} timeout={500 + idx * 100} key={idx}>
           <Grid item xs={12} sm={6} md={4}>
-            <Card variant="outlined" sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
-              <Avatar sx={{ bgcolor: teal[500], mr: 2 }}>
+            <Card variant="outlined" sx={{ display: 'flex', alignItems: 'center', p: 1 }}>
+              <Avatar sx={{ bgcolor: teal[500], mr: 1 }}>
                 <AccountCircleIcon />
               </Avatar>
               <CardContent sx={{ flexGrow: 1, p: 0 }}>

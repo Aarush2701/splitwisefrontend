@@ -306,8 +306,10 @@ export default function EditExpense() {
       setSnackbar({ open: true, message: 'Expense updated successfully', severity: 'success' });
       setTimeout(() => navigate(`/group/${groupid}`), 1000);
     } catch (err) {
-      console.error(err);
-      setSnackbar({ open: true, message: 'Failed to update expense', severity: 'error' });
+      const message = err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.response?.data  || "Failed to update Expense";
+      setSnackbar({ open: true, message, severity: 'error' });
     }
   };
 
