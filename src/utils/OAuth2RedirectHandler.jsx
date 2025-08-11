@@ -11,7 +11,7 @@ export default function OAuth2RedirectHandler() {
 
     if (token) {
       login(token);
-      navigate('/dashboard'); // 👈 Redirect to dashboard after saving token
+      navigate('/dashboard'); //  Redirect to dashboard after saving token
     } else {
       console.error("Token not found in redirect URL");
       navigate('/login');
